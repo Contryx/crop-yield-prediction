@@ -28,10 +28,12 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# Load trained pipeline
-model = joblib.load("mlp_model.pkl")
 
-# Custom CSS to style labels, reduce spacing, and add white boxes for warnings
+# Load both models
+mlp_model = joblib.load("mlp_model.pkl")
+dt_model = joblib.load("decision_tree.pkl")
+
+# labels, reduce spacing, and add white boxes
 st.markdown(
     """
     <style>
@@ -98,31 +100,30 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Display Title (Without Emojis)
+# Title
 st.markdown('<h1 class="title">Crop Yield Prediction</h1>', unsafe_allow_html=True)
 
-# User Inputs (Bold Labels, No Emojis)
+# User Inputs
 average_rain_fall_mm_per_year = st.number_input("**Avg Rainfall (mm/year):**", min_value=0.0, value=0.0)
 avg_temp = st.number_input("**Avg Temperature (°C):**", min_value=-10.0, value=0.0)
 pesticides_tonnes = st.number_input("**Pesticides (tonnes):**", min_value=0.0, value=0.0)
 area = st.selectbox("**Location:**", ["India", "Europe"])
 
-# Include 'Item' selection
+# Crop type
 item_options = ["Maize", "Potatoes", "Rice, paddy", "Sorghum", "Wheat"]
 item = st.selectbox("**Crop Type:**", item_options)
 
-# Create input DataFrame
+# Input Data
 input_data = pd.DataFrame({
     'average_rain_fall_mm_per_year': [average_rain_fall_mm_per_year],
     'avg_temp': [avg_temp],
     'pesticides_tonnes': [pesticides_tonnes],
     'Area': [area],
-    'Item': [item]  
+    'Item': [item]
 })
 
-# Prediction Button
+# Prediction
 if st.button("Predict Yield"):
-    # Check if all numerical inputs are zero
     if average_rain_fall_mm_per_year == 0 and avg_temp == 0 and pesticides_tonnes == 0:
         st.markdown(
             '<div class="warning-box">⚠️ Please enter valid values for rainfall, temperature, and pesticides to get a prediction.</div>',
@@ -130,11 +131,22 @@ if st.button("Predict Yield"):
         )
     else:
         try:
-            predicted_yield = model.predict(input_data)[0]
+            model = dt_model if area == "India" else mlp_model
+
+            input_data = pd.DataFrame({
+                'average_rain_fall_mm_per_year': [average_rain_fall_mm_per_year],
+                'avg_temp': [avg_temp],
+                'pesticides_tonnes': [pesticides_tonnes],
+                'Area': [str(area)],
+                'Item': [str(item)]
+            })
+
+            prediction = model.predict(input_data)[0]
+
             st.markdown(
-                f'<div class="result-box"><b>Predicted Yield for {area} ({item}):</b> <br> <span style="font-size:22px;">{predicted_yield:.2f} hg/ha</span></div>',
+                f'<div class="result-box"><b>Predicted Yield for {area} ({item}):</b> <br> <span style="font-size:22px;">{prediction:.2f} hg/ha</span></div>',
                 unsafe_allow_html=True
             )
+
         except Exception as e:
             st.error(f"Error making prediction: {e}")
-
