@@ -3,14 +3,13 @@ import streamlit as st
 
 def set_background(image_url):
     """
-    Adds a background image using CSS.
-    :param image_url: URL or local path of the background image.
+    background image
     """
     st.markdown(
         f"""
         <style>
         .stApp {{
-            background: url("{image_url}") no-repeat center center fixed;
+            background: url("{image_url}");
             background-size: cover;
         }}
         </style>
@@ -28,8 +27,6 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-
-# Load both models
 mlp_model = joblib.load("mlp_model.pkl")
 dt_model = joblib.load("decision_tree.pkl")
 
@@ -37,7 +34,6 @@ dt_model = joblib.load("decision_tree.pkl")
 st.markdown(
     """
     <style>
-        /* Make title clear and readable */
         .title {
             color: black !important;
             font-size: 26px !important;
@@ -45,23 +41,23 @@ st.markdown(
             text-align: center;
         }
 
-        /* Improve label styling - keep bold and make the white box fit the text */
+        /* label styling
         .stNumberInput label, .stSelectbox label {
             font-size: 14px !important;
             font-weight: bold !important;
             background-color: rgba(255, 255, 255, 0.7);
-            padding: 2px 5px !important; /* Adjusted padding for better fit */
-            border-radius: 3px !important; /* Smaller rounded corners */
+            padding: 2px 5px !important; 
+            border-radius: 3px !important; 
             display: inline-block;
-            margin-bottom: -2px !important; /* Reduce spacing between label and input */
+            margin-bottom: -2px !important; 
         }
 
-        /* Reduce gap between inputs */
+        /*gap between inputs */
         div[data-testid="stNumberInput"], div[data-testid="stSelectbox"] {
-            margin-top: -2px !important; /* Pull input boxes closer to labels */
+            margin-top: -2px !important; 
         }
 
-        /* Improve button visibility */
+        /*improve button visibility */
         div.stButton > button {
             font-size: 18px !important;
             padding: 12px 24px;
@@ -70,8 +66,6 @@ st.markdown(
             border-radius: 8px;
             border: none;
         }
-
-        /* Style for prediction result box */
         .result-box {
             font-size: 20px !important;
             font-weight: bold !important;
@@ -82,8 +76,6 @@ st.markdown(
             margin-top: 15px;
             border: 2px solid black;
         }
-
-        /* Style for warning message box */
         .warning-box {
             font-size: 16px !important;
             font-weight: bold !important;
@@ -100,20 +92,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Title
 st.markdown('<h1 class="title">Crop Yield Prediction</h1>', unsafe_allow_html=True)
 
-# User Inputs
+#user Inputs
 average_rain_fall_mm_per_year = st.number_input("**Avg Rainfall (mm/year):**", min_value=0.0, value=0.0)
 avg_temp = st.number_input("**Avg Temperature (°C):**", min_value=-10.0, value=0.0)
 pesticides_tonnes = st.number_input("**Pesticides (tonnes):**", min_value=0.0, value=0.0)
 area = st.selectbox("**Location:**", ["India", "Europe"])
 
-# Crop type
+#crop type
 item_options = ["Maize", "Potatoes", "Rice, paddy", "Sorghum", "Wheat"]
 item = st.selectbox("**Crop Type:**", item_options)
 
-# Input Data
+#input Data
 input_data = pd.DataFrame({
     'average_rain_fall_mm_per_year': [average_rain_fall_mm_per_year],
     'avg_temp': [avg_temp],
@@ -122,7 +113,7 @@ input_data = pd.DataFrame({
     'Item': [item]
 })
 
-# Prediction
+#prediction
 if st.button("Predict Yield"):
     if average_rain_fall_mm_per_year == 0 and avg_temp == 0 and pesticides_tonnes == 0:
         st.markdown(
